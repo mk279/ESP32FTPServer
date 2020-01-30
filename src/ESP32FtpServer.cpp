@@ -240,6 +240,10 @@ boolean FtpServer::userPassword()
   return false;
 }
 
+uint8_t FtpServer::isConnected() {
+  return client.connected();
+}
+
 boolean FtpServer::processCommand()
 {
   ///////////////////////////////////////
