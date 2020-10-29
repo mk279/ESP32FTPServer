@@ -48,7 +48,8 @@
 #define FTP_CWD_SIZE 255 + 8 // max size of a directory name
 #define FTP_FIL_SIZE 255     // max size of a file name
 //#define FTP_BUF_SIZE (8192*1)-1 //512   // size of file buffer for read/write
-#define FTP_BUF_SIZE 4096 //512   // size of file buffer for read/write
+//#define FTP_BUF_SIZE 4096 //512   // size of file buffer for read/write
+#define FTP_BUF_SIZE 16384 //512   // size of file buffer for read/write
 
 
 class FtpServer
@@ -87,7 +88,8 @@ private:
 
   boolean  dataPassiveConn;
   uint16_t dataPort;
-  char     buf[ FTP_BUF_SIZE ];       // data buffer for transfers
+  //char     buf[ FTP_BUF_SIZE ];       // data buffer for transfers
+  char *buf = (char *) malloc(FTP_BUF_SIZE);
   char     cmdLine[ FTP_CMD_SIZE ];   // where to store incoming char from client
   char     cwdName[ FTP_CWD_SIZE ];   // name of current directory
   char     command[ 5 ];              // command sent by client
