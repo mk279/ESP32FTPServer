@@ -33,23 +33,20 @@
 #ifndef FTP_SERVERESP_H
 #define FTP_SERVERESP_H
 
-//#include "Streaming.h"
 #include "SD.h"
 #include <FS.h>
 #include <WiFiClient.h>
 
-#define FTP_SERVER_VERSION "FTP-2016-01-14"
+#define FTP_SERVER_VERSION "FTP-2020-10-29"
 
 #define FTP_CTRL_PORT    21          // Command port on wich server is listening
 #define FTP_DATA_PORT_PASV 50009     // Data port in passive mode
 
-#define FTP_TIME_OUT  5           // Disconnect client after 5 minutes of inactivity
-#define FTP_CMD_SIZE 255 + 8 // max size of a command
-#define FTP_CWD_SIZE 255 + 8 // max size of a directory name
-#define FTP_FIL_SIZE 255     // max size of a file name
-//#define FTP_BUF_SIZE (8192*1)-1 //512   // size of file buffer for read/write
-//#define FTP_BUF_SIZE 4096 //512   // size of file buffer for read/write
-#define FTP_BUF_SIZE 16384 //512   // size of file buffer for read/write
+#define FTP_TIME_OUT  5              // Disconnect client after 5 minutes of inactivity
+#define FTP_CMD_SIZE 255 + 8         // max size of a command
+#define FTP_CWD_SIZE 255 + 8         // max size of a directory name
+#define FTP_FIL_SIZE 255             // max size of a file name
+#define FTP_BUF_SIZE 16384           // size of file buffer for read/write
 
 
 class FtpServer
@@ -80,7 +77,7 @@ private:
   char *  makeDateTimeStr( char * tstr, uint16_t date, uint16_t time );
   int8_t  readChar();
 
-  IPAddress      dataIp;              // IP address of client for data
+  IPAddress  dataIp;              // IP address of client for data
   WiFiClient client;
   WiFiClient data;
 
@@ -88,13 +85,12 @@ private:
 
   boolean  dataPassiveConn;
   uint16_t dataPort;
-  //char     buf[ FTP_BUF_SIZE ];       // data buffer for transfers
-  char *buf = (char *) malloc(FTP_BUF_SIZE);
-  char     cmdLine[ FTP_CMD_SIZE ];   // where to store incoming char from client
-  char     cwdName[ FTP_CWD_SIZE ];   // name of current directory
-  char     command[ 5 ];              // command sent by client
+  char     *buf = (char *) malloc(FTP_BUF_SIZE);
+  char     *cmdLine = (char *) malloc(FTP_CMD_SIZE);   // where to store incoming char from client
+  char     *cwdName = (char *) malloc(FTP_CWD_SIZE);   // name of current directory
+  char     *command = (char *) malloc(5);              // command sent by client
   boolean  rnfrCmd;                   // previous command was RNFR
-  char *   parameters;                // point to begin of parameters sent by client
+  char     *parameters;               // point to begin of parameters sent by client
   uint16_t iCL;                       // pointer to cmdLine next incoming char
   int8_t   cmdStatus,                 // status of ftp command connexion
            transferStatus;            // status of ftp data transfer
