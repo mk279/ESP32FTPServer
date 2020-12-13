@@ -664,8 +664,8 @@ boolean FtpServer::processCommand()
     Serial.println(dir);
     #endif
 
-    fs::FS &fs = SD;
-    if (fs.mkdir(dir.c_str()))
+
+    if (_fs->mkdir(dir.c_str()))
     {
       client.println( "257 \"" + String(parameters) + "\" - Directory successfully created");  
     }
@@ -695,8 +695,8 @@ boolean FtpServer::processCommand()
     {
       dir = String(cwdName) +"/" + parameters;
     }
-    fs::FS &fs = SD;
-    if (fs.rmdir(dir.c_str()))
+    
+    if (_fs->rmdir(dir.c_str()))
     {
       client.println( "250 RMD command successful");  
     }
