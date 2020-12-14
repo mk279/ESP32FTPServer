@@ -27,7 +27,8 @@
 //#include <ESP32WebServer.h>
 #include <FS.h>
 //#include "SD.h"
-#include "SD.h"
+#include "SD_MMC.h"
+#define SD SD_MMC
 #include "SPI.h"
 
 #define FTP_DEBUG
@@ -613,6 +614,7 @@ boolean FtpServer::processCommand()
       client.println( "501 No file name");
     else if( makePath( path ))
     {
+      convertToAscii(path);
 		  file = SD.open(path, "w");
       if( !file)
         client.println( "451 Can't open/create " +String(parameters) );
@@ -1004,6 +1006,37 @@ int8_t FtpServer::readChar()
     }
   }
   return rc;
+}
+
+boolean FtpServer::convertToAscii( char * fullName )
+{
+  uint32_t length;
+  uint32_t i;
+  length = strlen(fullName);
+  for(i = 0; i < length; i++){
+    if( fullName[i] > 127 ){
+      if( fullName[i] == 223 ){ // ß
+        fullName[i] = 's';
+      } else if( fullName[i] == 196 ){ // Ä
+        fullName[i] = 'A';
+      } else if( fullName[i] == 228 ){ // ä
+        fullName[i] = 'a';
+      } else if( fullName[i] == 214 ){ // Ö
+        fullName[i] = 'O';
+      } else if( fullName[i] == 246 ){ // ö
+        fullName[i] = 'o';
+      } else if( fullName[i] == 220 ){ // Ü
+        fullName[i] = 'U';
+      } else if( fullName[i] == 252 ){ // ü
+        fullName[i] = 'u';
+      } else {
+        fullName[i] = '?';
+      }
+    }
+  
+  }
+
+  return true;
 }
 
 // Make complete path/name from cwdName and parameters

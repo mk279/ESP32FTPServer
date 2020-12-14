@@ -70,6 +70,7 @@ private:
   boolean doStore();
   void    closeTransfer();
   void    abortTransfer();
+  boolean convertToAscii( char * fullName );
   boolean makePath( char * fullname );
   boolean makePath( char * fullName, char * param );
   uint8_t getDateTime( uint16_t * pyear, uint8_t * pmonth, uint8_t * pday,
