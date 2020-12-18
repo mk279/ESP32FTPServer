@@ -37,7 +37,7 @@
 #include <FS.h>
 #include <WiFiClient.h>
 
-#define FTP_SERVER_VERSION "FTP-2020-10-29"
+#define FTP_SERVER_VERSION "FTP-2020-12-12"
 
 #define FTP_CTRL_PORT    21          // Command port on wich server is listening
 #define FTP_DATA_PORT_PASV 50009     // Data port in passive mode
@@ -55,6 +55,7 @@ public:
 
   FtpServer();
   void    begin(String uname, String pword);
+  void    begin(fs::FS &fs, String uname, String pword);
   int     handleFTP();
   uint8_t isConnected();
 
@@ -82,6 +83,8 @@ private:
   WiFiClient data;
 
   File file;
+  fs::FS *_fs;
+  
 
   boolean  dataPassiveConn;
   uint16_t dataPort;
