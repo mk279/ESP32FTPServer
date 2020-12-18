@@ -42,6 +42,14 @@ FtpServer::FtpServer()
 
 }
 
+FtpServer::~FtpServer()
+{
+  free(buf);
+  free(cmdLine);
+  free(cwdName);
+  free(command);
+}
+
 void FtpServer::begin(String uname, String pword)
 {
   // Tells the ftp server to begin listening for incoming connection

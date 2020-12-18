@@ -57,6 +57,7 @@ public:
   void    begin(String uname, String pword);
   int     handleFTP();
   uint8_t isConnected();
+  ~FtpServer();
 
 private:
   void    iniVariables();
