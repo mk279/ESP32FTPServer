@@ -37,7 +37,7 @@
 #include <FS.h>
 #include <WiFiClient.h>
 
-#define FTP_SERVER_VERSION "FTP-2020-10-29"
+#define FTP_SERVER_VERSION "FTP-2020-12-12"
 
 #define FTP_CTRL_PORT    21          // Command port on wich server is listening
 #define FTP_DATA_PORT_PASV 50009     // Data port in passive mode
@@ -54,10 +54,11 @@ class FtpServer
 public:
 
   FtpServer();
+  ~FtpServer();
   void    begin(String uname, String pword);
+  void    begin(fs::FS &fs, String uname, String pword);
   int     handleFTP();
   uint8_t isConnected();
-  ~FtpServer();
 
 private:
   void    iniVariables();
@@ -71,7 +72,6 @@ private:
   boolean doStore();
   void    closeTransfer();
   void    abortTransfer();
-  boolean convertToAscii( char * fullName );
   boolean makePath( char * fullname );
   boolean makePath( char * fullName, char * param );
   uint8_t getDateTime( uint16_t * pyear, uint8_t * pmonth, uint8_t * pday,
@@ -84,13 +84,15 @@ private:
   WiFiClient data;
 
   File file;
+  fs::FS *_fs;
+  
 
   boolean  dataPassiveConn;
   uint16_t dataPort;
-  char     *buf = (char *) malloc(FTP_BUF_SIZE);
-  char     *cmdLine = (char *) malloc(FTP_CMD_SIZE);   // where to store incoming char from client
-  char     *cwdName = (char *) malloc(FTP_CWD_SIZE);   // name of current directory
-  char     *command = (char *) malloc(5);              // command sent by client
+  char     *buf;
+  char     *cmdLine;   // where to store incoming char from client
+  char     *cwdName;   // name of current directory
+  char     *command;              // command sent by client
   boolean  rnfrCmd;                   // previous command was RNFR
   char     *parameters;               // point to begin of parameters sent by client
   uint16_t iCL;                       // pointer to cmdLine next incoming char

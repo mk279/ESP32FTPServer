@@ -39,7 +39,10 @@ WiFiServer dataServer( FTP_DATA_PORT_PASV );
 
 FtpServer::FtpServer()
 {
-
+  buf = (char *) malloc(FTP_BUF_SIZE);
+  cmdLine = (char *) malloc(FTP_CMD_SIZE);
+  cwdName = (char *) malloc(FTP_CWD_SIZE);
+  command = (char *) malloc(5);
 }
 
 FtpServer::~FtpServer()
@@ -50,13 +53,25 @@ FtpServer::~FtpServer()
   free(command);
 }
 
+void FtpServer::begin(fs::FS &fs, String uname, String pword)
+{
+   // Tells the ftp server to begin listening for incoming connection
+  _FTP_USER= uname;
+  _FTP_PASS = pword;
+  _fs = &fs;
+  ftpServer.begin();
+  delay(10);
+  dataServer.begin(); 
+  delay(10);
+  millisTimeOut = (uint32_t)FTP_TIME_OUT * 60 * 1000;
+  millisDelay = 0;
+  cmdStatus = 0;
+  iniVariables();
+}
+
 void FtpServer::begin(String uname, String pword)
 {
-  // Tells the ftp server to begin listening for incoming connection
-	_FTP_USER=uname;
-	_FTP_PASS = pword;
-
-  if(!SD.begin())
+   if(!SD.begin())
   {
       Serial.println("Card Mount Failed");
       return;
@@ -78,15 +93,7 @@ void FtpServer::begin(String uname, String pword)
   } else {
       Serial.println("UNKNOWN");
 }
-
-	ftpServer.begin();
-	delay(10);
-	dataServer.begin();	
-	delay(10);
-	millisTimeOut = (uint32_t)FTP_TIME_OUT * 60 * 1000;
-	millisDelay = 0;
-	cmdStatus = 0;
-  iniVariables();
+  begin(SD, uname, pword);
 }
 
 void FtpServer::iniVariables()
@@ -300,7 +307,7 @@ boolean FtpServer::processCommand()
           dir = String(cwdName) +"/" + parameters;
         }        
 
-        if (SD.exists(dir))
+        if (_fs->exists(dir))
         {
           strcpy(cwdName, dir.c_str());
           client.println( "250 CWD Ok. Current directory is \"" + String(dir) + "\"");
@@ -441,11 +448,11 @@ boolean FtpServer::processCommand()
       client.println( "501 No file name");
     else if( makePath( path ))
     {
-      if( ! SD.exists( path ))
+      if( ! _fs->exists( path ))
         client.println( "550 File " + String(parameters) + " not found");
       else
       {
-        if( SD.remove( path ))
+        if( _fs->remove( path ))
           client.println( "250 Deleted " + String(parameters) );
         else
           client.println( "450 Can't delete " + String(parameters));
@@ -463,9 +470,9 @@ boolean FtpServer::processCommand()
     {
       client.println( "150 Accepted data connection");
       uint16_t nm = 0;
-//      Dir dir=SD.openDir(cwdName);
-      File dir=SD.open(cwdName);
-//      if( !SD.exists(cwdName))
+//      Dir dir=_fs->openDir(cwdName);
+      File dir=_fs->open(cwdName);
+//      if( !_fs->exists(cwdName))
      if((!dir)||(!dir.isDirectory()))
         client.println( "550 Can't open directory " + String(cwdName) );
       else
@@ -507,10 +514,10 @@ boolean FtpServer::processCommand()
     {
 	    client.println( "150 Accepted data connection");
       uint16_t nm = 0;
-//      Dir dir= SD.openDir(cwdName);
-      File dir= SD.open(cwdName);
+//      Dir dir= _fs->openDir(cwdName);
+      File dir= _fs->open(cwdName);
       //char dtStr[ 15 ];
-    //  if(!SD.exists(cwdName))
+    //  if(!_fs->exists(cwdName))
      if((!dir)||(!dir.isDirectory()))
         client.println( "550 Can't open directory " +String(cwdName) );
 //        client.println( "550 Can't open directory " +String(parameters) );
@@ -554,9 +561,9 @@ boolean FtpServer::processCommand()
     {
       client.println( "150 Accepted data connection");
       uint16_t nm = 0;
-//      Dir dir=SD.openDir(cwdName);
-      File dir= SD.open(cwdName);
-      if( !SD.exists( cwdName ))
+//      Dir dir=_fs->openDir(cwdName);
+      File dir= _fs->open(cwdName);
+      if( !_fs->exists( cwdName ))
         client.println( "550 Can't open directory " + String(parameters));
       else
       {
@@ -592,7 +599,7 @@ boolean FtpServer::processCommand()
       client.println( "501 No file name");
     else if( makePath( path ))
 	{
-		file = SD.open(path, "r");
+		file = _fs->open(path, "r");
       if( !file)
         client.println( "550 File " +String(parameters)+ " not found");
       else if( !file )
@@ -622,8 +629,7 @@ boolean FtpServer::processCommand()
       client.println( "501 No file name");
     else if( makePath( path ))
     {
-      convertToAscii(path);
-		  file = SD.open(path, "w");
+      file = _fs->open(path, "w");
       if( !file)
         client.println( "451 Can't open/create " +String(parameters) );
       else if( ! dataConnect())
@@ -670,8 +676,8 @@ boolean FtpServer::processCommand()
     Serial.println(dir);
     #endif
 
-    fs::FS &fs = SD;
-    if (fs.mkdir(dir.c_str()))
+
+    if (_fs->mkdir(dir.c_str()))
     {
       client.println( "257 \"" + String(parameters) + "\" - Directory successfully created");  
     }
@@ -701,8 +707,8 @@ boolean FtpServer::processCommand()
     {
       dir = String(cwdName) +"/" + parameters;
     }
-    fs::FS &fs = SD;
-    if (fs.rmdir(dir.c_str()))
+    
+    if (_fs->rmdir(dir.c_str()))
     {
       client.println( "250 RMD command successful");  
     }
@@ -723,7 +729,7 @@ boolean FtpServer::processCommand()
       client.println( "501 No file name");
     else if( makePath( buf ))
     {
-      if( ! SD.exists( buf ))
+      if( ! _fs->exists( buf ))
         client.println( "550 File " +String(parameters)+ " not found");
       else
       {
@@ -748,14 +754,14 @@ boolean FtpServer::processCommand()
       client.println( "501 No file name");
     else if( makePath( path ))
     {
-      if( SD.exists( path ))
+      if( _fs->exists( path ))
         client.println( "553 " +String(parameters)+ " already exists");
       else
       {          
             #ifdef FTP_DEBUG
 		  Serial.println("Renaming " + String(buf) + " to " + String(path));
             #endif
-            if( SD.rename( buf, path ))
+            if( _fs->rename( buf, path ))
               client.println( "250 File successfully renamed or moved");
             else
 				client.println( "451 Rename/move failure");
@@ -798,7 +804,7 @@ boolean FtpServer::processCommand()
       client.println( "501 No file name");
     else if( makePath( path ))
 	{
-		file = SD.open(path, "r");
+		file = _fs->open(path, "r");
       if(!file)
          client.println( "450 Can't open " +String(parameters) );
       else
@@ -1014,37 +1020,6 @@ int8_t FtpServer::readChar()
     }
   }
   return rc;
-}
-
-boolean FtpServer::convertToAscii( char * fullName )
-{
-  uint32_t length;
-  uint32_t i;
-  length = strlen(fullName);
-  for(i = 0; i < length; i++){
-    if( fullName[i] > 127 ){
-      if( fullName[i] == 223 ){ // ß
-        fullName[i] = 's';
-      } else if( fullName[i] == 196 ){ // Ä
-        fullName[i] = 'A';
-      } else if( fullName[i] == 228 ){ // ä
-        fullName[i] = 'a';
-      } else if( fullName[i] == 214 ){ // Ö
-        fullName[i] = 'O';
-      } else if( fullName[i] == 246 ){ // ö
-        fullName[i] = 'o';
-      } else if( fullName[i] == 220 ){ // Ü
-        fullName[i] = 'U';
-      } else if( fullName[i] == 252 ){ // ü
-        fullName[i] = 'u';
-      } else {
-        fullName[i] = '?';
-      }
-    }
-  
-  }
-
-  return true;
 }
 
 // Make complete path/name from cwdName and parameters
