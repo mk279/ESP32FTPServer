@@ -27,8 +27,7 @@
 //#include <ESP32WebServer.h>
 #include <FS.h>
 //#include "SD.h"
-#include "SD_MMC.h"
-#define SD SD_MMC
+#include "SD.h"
 #include "SPI.h"
 
 #define FTP_DEBUG

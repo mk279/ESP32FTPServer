@@ -90,9 +90,9 @@ private:
   boolean  dataPassiveConn;
   uint16_t dataPort;
   char     *buf;
-  char     *cmdLine;   // where to store incoming char from client
-  char     *cwdName;   // name of current directory
-  char     *command;              // command sent by client
+  char     *cmdLine;                  // where to store incoming char from client
+  char     *cwdName;                  // name of current directory
+  char     *command;                  // command sent by client
   boolean  rnfrCmd;                   // previous command was RNFR
   char     *parameters;               // point to begin of parameters sent by client
   uint16_t iCL;                       // pointer to cmdLine next incoming char
