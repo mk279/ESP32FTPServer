@@ -38,7 +38,18 @@ WiFiServer dataServer( FTP_DATA_PORT_PASV );
 
 FtpServer::FtpServer()
 {
+  buf = (char *) malloc(FTP_BUF_SIZE);
+  cmdLine = (char *) malloc(FTP_CMD_SIZE);
+  cwdName = (char *) malloc(FTP_CWD_SIZE);
+  command = (char *) malloc(5);
+}
 
+FtpServer::~FtpServer()
+{
+  free(buf);
+  free(cmdLine);
+  free(cwdName);
+  free(command);
 }
 
 void FtpServer::begin(fs::FS &fs, String uname, String pword)
@@ -617,7 +628,7 @@ boolean FtpServer::processCommand()
       client.println( "501 No file name");
     else if( makePath( path ))
     {
-		  file = _fs->open(path, "w");
+      file = _fs->open(path, "w");
       if( !file)
         client.println( "451 Can't open/create " +String(parameters) );
       else if( ! dataConnect())

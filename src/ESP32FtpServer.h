@@ -54,6 +54,7 @@ class FtpServer
 public:
 
   FtpServer();
+  ~FtpServer();
   void    begin(String uname, String pword);
   void    begin(fs::FS &fs, String uname, String pword);
   int     handleFTP();
@@ -88,10 +89,10 @@ private:
 
   boolean  dataPassiveConn;
   uint16_t dataPort;
-  char     *buf = (char *) malloc(FTP_BUF_SIZE);
-  char     *cmdLine = (char *) malloc(FTP_CMD_SIZE);   // where to store incoming char from client
-  char     *cwdName = (char *) malloc(FTP_CWD_SIZE);   // name of current directory
-  char     *command = (char *) malloc(5);              // command sent by client
+  char     *buf;
+  char     *cmdLine;                  // where to store incoming char from client
+  char     *cwdName;                  // name of current directory
+  char     *command;                  // command sent by client
   boolean  rnfrCmd;                   // previous command was RNFR
   char     *parameters;               // point to begin of parameters sent by client
   uint16_t iCL;                       // pointer to cmdLine next incoming char
