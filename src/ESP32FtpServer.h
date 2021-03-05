@@ -33,8 +33,11 @@
 #ifndef FTP_SERVERESP_H
 #define FTP_SERVERESP_H
 
+#include "Arduino.h"
 #include "SD.h"
-#include <FS.h>
+#include "FS.h"
+#include "SPI.h"
+#include <WiFi.h>
 #include <WiFiClient.h>
 
 #define FTP_SERVER_VERSION "FTP-2020-12-12"
@@ -49,64 +52,60 @@
 #define FTP_BUF_SIZE 16384           // size of file buffer for read/write
 
 
-class FtpServer
-{
+class FtpServer {
+
 public:
 
-  FtpServer();
-  ~FtpServer();
-  void    begin(String uname, String pword);
-  void    begin(fs::FS &fs, String uname, String pword);
-  int     handleFTP();
-  uint8_t isConnected();
+    FtpServer();
+    ~FtpServer();
+    void    begin(String uname, String pword);
+    void    begin(fs::FS &fs, String uname, String pword);
+    int     handleFTP();
+    uint8_t isConnected();
 
 private:
-  void    iniVariables();
-  void    clientConnected();
-  void    disconnectClient();
-  boolean userIdentity();
-  boolean userPassword();
-  boolean processCommand();
-  boolean dataConnect();
-  boolean doRetrieve();
-  boolean doStore();
-  void    closeTransfer();
-  void    abortTransfer();
-  boolean makePath( char * fullname );
-  boolean makePath( char * fullName, char * param );
-  uint8_t getDateTime( uint16_t * pyear, uint8_t * pmonth, uint8_t * pday,
-                       uint8_t * phour, uint8_t * pminute, uint8_t * second );
-  char *  makeDateTimeStr( char * tstr, uint16_t date, uint16_t time );
-  int8_t  readChar();
+    void iniVariables();
+    void clientConnected();
+    void disconnectClient();
+    boolean userIdentity();
+    boolean userPassword();
+    boolean processCommand();
+    boolean dataConnect();
+    boolean doRetrieve();
+    boolean doStore();
+    void closeTransfer();
+    void abortTransfer();
+    boolean makePath(char *fullname);
+    boolean makePath(char *fullName, char *param);
+    uint8_t getDateTime(uint16_t *pyear, uint8_t *pmonth, uint8_t *pday, uint8_t *phour, uint8_t *pminute, uint8_t *second);
+    char* makeDateTimeStr(char *tstr, uint16_t date, uint16_t time);
+    int8_t readChar();
 
-  IPAddress  dataIp;              // IP address of client for data
-  WiFiClient client;
-  WiFiClient data;
+    IPAddress dataIp;              // IP address of client for data
+    WiFiClient client;
+    WiFiClient data;
 
-  File file;
-  fs::FS *_fs;
-  
+    File file;
+    fs::FS *_fs;
 
-  boolean  dataPassiveConn;
-  uint16_t dataPort;
-  char     *buf;
-  char     *cmdLine;                  // where to store incoming char from client
-  char     *cwdName;                  // name of current directory
-  char     *command;                  // command sent by client
-  boolean  rnfrCmd;                   // previous command was RNFR
-  char     *parameters;               // point to begin of parameters sent by client
-  uint16_t iCL;                       // pointer to cmdLine next incoming char
-  int8_t   cmdStatus,                 // status of ftp command connexion
-           transferStatus;            // status of ftp data transfer
-  uint32_t millisTimeOut,             // disconnect after 5 min of inactivity
-           millisDelay,
-           millisEndConnection,       //
-           millisBeginTrans,          // store time of beginning of a transaction
-           bytesTransfered;           //
-  String   _FTP_USER;
-  String   _FTP_PASS;
-
-
+    boolean  dataPassiveConn = false;;
+    uint16_t dataPort = 0;
+    char     *buf = NULL;
+    char     *cmdLine = NULL;               // where to store incoming char from client
+    char     *cwdName = NULL;               // name of current directory
+    char     *command = NULL;               // command sent by client
+    boolean  rnfrCmd = false;               // previous command was RNFR
+    char     *parameters = NULL;            // point to begin of parameters sent by client
+    uint16_t iCL = 0;                       // pointer to cmdLine next incoming char
+    int8_t   cmdStatus = 0;                 // status of ftp command connexion
+    int8_t   transferStatus = 0;            // status of ftp data transfer
+    uint32_t millisTimeOut = 0;             // disconnect after 5 min of inactivity
+    uint32_t millisDelay = 0;
+    uint32_t millisEndConnection = 0;       //
+    uint32_t millisBeginTrans = 0;          // store time of beginning of a transaction
+    uint32_t bytesTransfered = 0;           //
+    String   _FTP_USER = "";
+    String   _FTP_PASS = "";
 
 };
 
