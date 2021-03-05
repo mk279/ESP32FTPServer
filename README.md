@@ -44,6 +44,6 @@ void setup(void){
 }
 
 void loop(void){
-  ftpSrv.handleFTP();        //make sure in loop you call handleFTP()!!
+    ftpSrv.handleFTP();        //make sure in loop you call handleFTP()!!
 }
 ```
