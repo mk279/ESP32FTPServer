@@ -46,6 +46,12 @@ void setup(void){
 void loop(void){
     ftpSrv.handleFTP();        //make sure in loop you call handleFTP()!!
 }
+
+// optional
+void ftp_debug(const char* debug) {
+    printf("ftpdebug: %s  \n", debug);
+}
+
 ```
 Breadboard
 ![Breadboard](https://github.com/schreibfaul1/ESP32FTPServer/blob/master/examples/FTP_Server.jpg)
