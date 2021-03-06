@@ -18,8 +18,8 @@ const char* password = "PASSWD";     //WiFi Password
  * Connect the SD_MMC card to the following pins:
  *
  * SD Card | ESP32  1bit mode
- *    D2       12
- *    D3       13
+ *    CMD      15
+ *    CLK      14
  *    CLK      14
  *    D0       2  (add 1K pull up after flashing)
  *
