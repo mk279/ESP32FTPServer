@@ -4,7 +4,7 @@ Based on the work from https://github.com/HenrikSte/ESP32FTPServer and https://g
 
 Just resized the global buffer and introduced method isConnected().<br />
 SD_MMC is now supported (thanks to tueddy for the contribution).<br />
-Be advised that only one simultaneous connection is possible. I recommend [Filezilla](https://filezilla-project.org/) as it's a multi-OS-platform and this parameter can be configured there.
+Be advised that only one simultaneous connection is possible. I recommend [Filezilla](https://filezilla-project.org/) as it's a multi-OS-platform and this parameter can be configured there. PSRAM is automatically recognized and used.
 
 ```c++
 
