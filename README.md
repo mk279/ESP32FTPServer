@@ -49,7 +49,7 @@ void loop(void){
 
 // optional
 void ftp_debug(const char* debug) {
-    printf("ftpdebug: %s  \n", debug);
+    Serial.printf("ftpdebug: %s  \n", debug);
 }
 
 ```
