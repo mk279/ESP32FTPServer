@@ -1,6 +1,6 @@
 /*
- * FTP Serveur for ESP8266
- * based on FTP Serveur for Arduino Due and Ethernet shield (W5100) or WIZ820io (W5200)
+ * FTP Server for ESP32
+ * based on FTP Server for Arduino Due and Ethernet shield (W5100) or WIZ820io (W5200)
  * based on Jean-Michel Gallego's work
  * modified to work with esp8266 SPIFFS by David Paiva david@nailbuster.com
  * 
@@ -29,20 +29,7 @@ WiFiServer dataServer( FTP_DATA_PORT_PASV );
 //----------------------------------------------------------------------------------------------------------------------
 FtpServer::FtpServer() {
 
-    if(psramInit()) {
-        // PSRAM found, buf will be allocated in PSRAM
-        buf     = (char*) ps_calloc(FTP_BUF_SIZE_PSR, sizeof(char));
-
-        if(!buf){
-            // not enough space in PSRAM, use ESP32 Flash Memory instead
-            buf =     (char*) calloc(FTP_BUF_SIZE, sizeof(char));
-            log_e("Not enough space in PSRAM!");
-        }
-        else {
-            sprintf(chbuf, "PSRAM allocated, size: %u bytes", FTP_BUF_SIZE_PSR);
-            if(ftp_debug) ftp_debug(chbuf);
-        }
-    }
+    buf =     (char*) calloc(FTP_BUF_SIZE, sizeof(char));
     cmdLine = (char*) calloc(FTP_CMD_SIZE, sizeof(char));
     cwdName = (char*) calloc(FTP_CWD_SIZE, sizeof(char));
 
@@ -77,6 +64,9 @@ void FtpServer::begin(fs::FS &fs, String uname, String pword) {
     millisDelay = 0;
     cmdStatus = 0;
     iniVariables();
+
+    sprintf(chbuf, "Buffers allocated: %u bytes", (FTP_BUF_SIZE + FTP_CMD_SIZE + FTP_CWD_SIZE));
+    if(ftp_debug) ftp_debug(chbuf);
 }
 //----------------------------------------------------------------------------------------------------------------------
 void FtpServer::begin(String uname, String pword) {
@@ -616,8 +606,7 @@ boolean FtpServer::dataConnect() {
 //----------------------------------------------------------------------------------------------------------------------
 boolean FtpServer::doRetrieve() {
     int32_t nb;
-    if(psramInit())  nb = file.readBytes(buf, FTP_BUF_SIZE_PSR);
-    else             nb = file.readBytes(buf, FTP_BUF_SIZE);
+    nb = file.readBytes(buf, FTP_BUF_SIZE);
     if(nb > 0) {
         data.write((uint8_t*) buf, nb);
         bytesTransfered += nb;
@@ -632,8 +621,7 @@ boolean FtpServer::doStore() {
     if(data.connected()) {
         unsigned long ms0 = millis();
         int32_t nb;
-        if(psramInit()) nb = data.readBytes((uint8_t*) buf, FTP_BUF_SIZE_PSR);
-        else            nb = data.readBytes((uint8_t*) buf, FTP_BUF_SIZE);
+        nb = data.readBytes((uint8_t*) buf, FTP_BUF_SIZE);
         if(nb > 0) {
             size_t written = file.write((uint8_t*) buf, nb);
             bytesTransfered += nb;
