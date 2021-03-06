@@ -45,11 +45,14 @@
 #define FTP_CTRL_PORT    21          // Command port on wich server is listening
 #define FTP_DATA_PORT_PASV 50009     // Data port in passive mode
 
-#define FTP_TIME_OUT  5              // Disconnect client after 5 minutes of inactivity
-#define FTP_CMD_SIZE 255 + 8         // max size of a command
-#define FTP_CWD_SIZE 255 + 8         // max size of a directory name
-#define FTP_FIL_SIZE 255             // max size of a file name
-#define FTP_BUF_SIZE 16384           // size of file buffer for read/write
+#define FTP_TIME_OUT     5              // Disconnect client after 5 minutes of inactivity
+#define FTP_CMD_SIZE     255 + 8         // max size of a command
+#define FTP_CWD_SIZE     255 + 8         // max size of a directory name
+#define FTP_FIL_SIZE     255             // max size of a file name
+#define FTP_BUF_SIZE     16384           // size of file buffer for read/write
+#define FTP_BUF_SIZE_PSR 65536           // size of file buffer for read/write in PSRAM
+
+extern __attribute__((weak)) void ftp_debug(const char*);
 
 
 class FtpServer {
@@ -90,10 +93,11 @@ private:
 
     boolean  dataPassiveConn = false;;
     uint16_t dataPort = 0;
+    char     chbuf[256];                    // stores debug infos
     char     *buf = NULL;
     char     *cmdLine = NULL;               // where to store incoming char from client
     char     *cwdName = NULL;               // name of current directory
-    char     *command = NULL;               // command sent by client
+    char     command[5];                    // command sent by client
     boolean  rnfrCmd = false;               // previous command was RNFR
     char     *parameters = NULL;            // point to begin of parameters sent by client
     uint16_t iCL = 0;                       // pointer to cmdLine next incoming char
