@@ -644,7 +644,7 @@ void FtpServer::closeTransfer() {
     else
         client.println("226 File successfully transferred");
 
-    sprintf(chbuf, "Transfer file in %u.%03ds", deltaT / 1000, deltaT % 1000);
+    sprintf(chbuf, "Transfer in %u.%03ds with %uKBytes/s ", deltaT / 1000, deltaT % 1000, bytesTransfered / deltaT);
     if(ftp_debug) ftp_debug(chbuf);
     file.close();
     data.stop();
