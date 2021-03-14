@@ -51,7 +51,6 @@ FtpServer::~FtpServer()
 }
 //----------------------------------------------------------------------------------------------------------------------
 void FtpServer::begin(fs::FS &fs, String uname, String pword) {
-
     // Tells the ftp server to begin listening for incoming connection
     _FTP_USER = uname;
     _FTP_PASS = pword;
@@ -616,7 +615,6 @@ boolean FtpServer::doRetrieve() {
     return false;
 }
 //----------------------------------------------------------------------------------------------------------------------
-unsigned long count = 0;
 boolean FtpServer::doStore() {
     if(data.connected()) {
         unsigned long ms0 = millis();
