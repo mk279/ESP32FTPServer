@@ -33,16 +33,16 @@
 #ifndef FTP_SERVERESP_H
 #define FTP_SERVERESP_H
 
+
+//#define SDFATFS_USED // activate to use SdFat
+
 #include "Arduino.h"
 #include "SPI.h"
 #include <WiFi.h>
 #include <WiFiClient.h>
 
-
-
-#ifdef SdFat_h
+#ifdef SDFATFS_USED
 #include "SD_Libs/SD_Libs.h"
-#define SDFATFS_USED
 #else
 #include "SD.h"
 #include "SD_MMC.h"
@@ -66,8 +66,10 @@ extern __attribute__((weak)) void ftp_debug(const char*);
 
 class FtpServer {
 
-public:
+private:
 
+
+public:
     FtpServer();
     ~FtpServer();
     void    begin(String uname, String pword);
@@ -96,7 +98,6 @@ private:
     IPAddress dataIp;              // IP address of client for data
     WiFiClient client;
     WiFiClient data;
-
     File file;
     fs::FS *_fs;
 
