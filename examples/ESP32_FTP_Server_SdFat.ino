@@ -6,11 +6,11 @@
 #include "SPI.h"
 #include "WiFi.h"
 #include "WiFiClient.h"
-#include "SdFat.h"
-#include "ESP32FtpServer.h"
+#include "SdFat.h"                  // https://github.com/greiman/SdFat
+#include "ESP32FtpServer.h"         // https://github.com/schreibfaul1/ESP32FTPServer
 
-const char* ssid =     "Wolles-FRITZBOX";       //WiFi SSID
-const char* password = "40441061073895958449";  //WiFi Password
+const char* ssid =     "xxxxxxxx";  //WiFi SSID
+const char* password = "xxxxxxxx";  //WiFi Password
 
 // defines for SD SPI
 #define SPI_MISO    19
