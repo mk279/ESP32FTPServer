@@ -71,7 +71,9 @@ void FtpServer::begin(fs::FS &fs, String uname, String pword) {
 void FtpServer::begin(String uname, String pword) {
 
     if(!SD.begin()) {log_e("Card Mount Failed"); return; }
+#ifdef SDFATFS_USED
 
+#else
 //    uint8_t cardType = SD.cardType();
 //
 //    if(cardType == CARD_NONE) {log_e("No SD card attached");return;}
@@ -81,6 +83,7 @@ void FtpServer::begin(String uname, String pword) {
 //    else if(cardType == CARD_SD)  {log_v("SDSC");}
 //    else if(cardType == CARD_SDHC){log_v("SDHC");}
 //    else                          {log_v("UNKNOWN");}
+#endif
     begin(SD, uname, pword);
 }
 //----------------------------------------------------------------------------------------------------------------------
