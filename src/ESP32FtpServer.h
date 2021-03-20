@@ -34,11 +34,19 @@
 #define FTP_SERVERESP_H
 
 #include "Arduino.h"
-#include "SD.h"
-#include "FS.h"
 #include "SPI.h"
 #include <WiFi.h>
 #include <WiFiClient.h>
+
+#if __has_include("SdFat.h")
+#include "SD_Libs/SD_Libs.h"
+#define SDFATFS_USED
+#else
+#include "SD.h"
+#include "SD_MMC.h"
+#include "FS.h"
+#endif
+
 
 #define FTP_SERVER_VERSION "FTP-2020-12-12"
 

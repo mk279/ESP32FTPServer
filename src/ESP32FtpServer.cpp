@@ -72,15 +72,15 @@ void FtpServer::begin(String uname, String pword) {
 
     if(!SD.begin()) {log_e("Card Mount Failed"); return; }
 
-    uint8_t cardType = SD.cardType();
-
-    if(cardType == CARD_NONE) {log_e("No SD card attached");return;}
-
-    log_v("SD Card Type: ");
-    if     (cardType == CARD_MMC) {log_v("MMC");}
-    else if(cardType == CARD_SD)  {log_v("SDSC");}
-    else if(cardType == CARD_SDHC){log_v("SDHC");}
-    else                          {log_v("UNKNOWN");}
+//    uint8_t cardType = SD.cardType();
+//
+//    if(cardType == CARD_NONE) {log_e("No SD card attached");return;}
+//
+//    log_v("SD Card Type: ");
+//    if     (cardType == CARD_MMC) {log_v("MMC");}
+//    else if(cardType == CARD_SD)  {log_v("SDSC");}
+//    else if(cardType == CARD_SDHC){log_v("SDHC");}
+//    else                          {log_v("UNKNOWN");}
     begin(SD, uname, pword);
 }
 //----------------------------------------------------------------------------------------------------------------------
@@ -228,7 +228,6 @@ boolean FtpServer::processCommand() {
     if(!strcmp(command, "CDUP")) {       //  CDUP - Change to Parent Directory
         int todo;
         client.println("250 Ok. Current directory is \"" + String(cwdName) + "\"");
-
         sprintf(chbuf, "\"%s\" is your current directory", cwdName);
         if(ftp_debug) ftp_debug(chbuf);
     }
@@ -347,6 +346,7 @@ boolean FtpServer::processCommand() {
         }
     }
     else if(!strcmp(command, "LIST")) {  //  LIST - List
+        log_i("in LIST");
         if(!dataConnect())
             client.println("425 No data connection");
         else {
@@ -358,22 +358,42 @@ boolean FtpServer::processCommand() {
             else {
                 File file = dir.openNextFile();
                 while(file) {
+#ifdef SDFATFS_USED
+                    file.getName(chbuf, 256);
+                    uint16_t pdate;
+                    uint16_t ptime;
+                    char tstr[20];
+                    file.getModifyDateTime( &pdate, &ptime );
+                    makeDateTimeStr(tstr, pdate, ptime);
+
+                    if(file.isDir()){
+                        data.println( "Type=dir;Size=" + String(file.size(), 10) +
+                                      ";modify=" + String(tstr) +";" + " " + String(chbuf));
+                    }
+                    else {
+                        data.println( "Type=file;Size=" + String(file.size(), 10) +
+                                      ";modify=" + String(tstr) +";" + " " + String(chbuf));
+                    }
+                    nm++;
+                    file = dir.openNextFile();
+
+#else
                     String fn, fs;
                     fn = file.name();
                     fn.remove(0, 1);
-
                     sprintf(chbuf, "File Name = %s", fn.c_str());
                     if(ftp_debug) ftp_debug(chbuf);
 
                     fs = String(file.size());
                     if(file.isDirectory()) {
-                        data.println("01-01-2000  00:00AM <DIR> " + fn);
+                        data.println("01-01-2021  00:00AM <DIR> " + fn);
                     }
                     else {
-                        data.println("01-01-2000  00:00AM " + fs + " " + fn);
+                        data.println("01-01-2021  00:00AM " + fs + " " + fn);
                     }
                     nm++;
                     file = dir.openNextFile();
+#endif
                 }
                 client.println("226 " + String(nm) + " matches total");
             }
@@ -393,6 +413,26 @@ boolean FtpServer::processCommand() {
             else {
                 File file = dir.openNextFile();
                 while(file) {
+
+#ifdef SDFATFS_USED
+                    file.getName(chbuf, 256);
+                    uint16_t pdate;
+                    uint16_t ptime;
+                    char tstr[20];
+                    file.getModifyDateTime( &pdate, &ptime );
+                    makeDateTimeStr(tstr, pdate, ptime);
+
+                    if(file.isDir()){
+                        data.println( "Type=dir;Size=" + String(file.size(), 10) +
+                                      ";modify=" + String(tstr) +";" + " " + String(chbuf));
+                    }
+                    else {
+                        data.println( "Type=file;Size=" + String(file.size(), 10) +
+                                      ";modify=" + String(tstr) +";" + " " + String(chbuf));
+                    }
+                    nm++;
+                    file = dir.openNextFile();
+#else
                     String fn, fs;
                     fn = file.name();
                     fn.remove(0, strlen(cwdName));
@@ -406,6 +446,7 @@ boolean FtpServer::processCommand() {
                     }
                     nm++;
                     file = dir.openNextFile();
+#endif
                 }
                 client.println("226-options: -a -l");
                 client.println("226 " + String(nm) + " matches total");
@@ -424,8 +465,14 @@ boolean FtpServer::processCommand() {
                 client.println("550 Can't open directory " + String(parameters));
             else {
                 File file = dir.openNextFile();
+
                 while(file) {
+#ifdef SDFATFS_USED
+                    file.getName(chbuf, 256);
+                    data.println(chbuf);
+#else
                     data.println(file.name());
+#endif
                     nm++;
                     file = dir.openNextFile();
                 }
@@ -443,7 +490,12 @@ boolean FtpServer::processCommand() {
         if(strlen(parameters) == 0)
             client.println("501 No file name");
         else if(makePath(path)) {
+#ifdef SDFATFS_USED
+            file = _fs->open(path, FILE_READ);
+#else
             file = _fs->open(path, "r");
+#endif
+
             if(!file)
                 client.println("550 File " + String(parameters) + " not found");
             else if(!file)
@@ -467,7 +519,12 @@ boolean FtpServer::processCommand() {
         if(strlen(parameters) == 0)
             client.println("501 No file name");
         else if(makePath(path)) {
+#ifdef SDFATFS_USED
+            file = _fs->open(path, FILE_WRITE);
+#else
             file = _fs->open(path, "w");
+#endif
+
             if(!file)
                 client.println("451 Can't open/create " + String(parameters));
             else if(!dataConnect()) {
@@ -569,7 +626,13 @@ boolean FtpServer::processCommand() {
         if(strlen(parameters) == 0)
             client.println("501 No file name");
         else if(makePath(path)) {
+
+#ifdef SDFATFS_USED
+            file = _fs->open(path, FILE_READ);
+#else
             file = _fs->open(path, "r");
+#endif
+
             if(!file)
                 client.println("450 Can't open " + String(parameters));
             else {
