@@ -38,7 +38,9 @@
 #include <WiFi.h>
 #include <WiFiClient.h>
 
-#if __has_include("SdFat.h")
+
+
+#ifdef SdFat_h
 #include "SD_Libs/SD_Libs.h"
 #define SDFATFS_USED
 #else
