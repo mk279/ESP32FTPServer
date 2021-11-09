@@ -383,7 +383,13 @@ boolean FtpServer::processCommand() {
 
 #else
                     String fn, fs;
-                    fn = file.name();
+                    if(ESP_ARDUINO_VERSION_MAJOR < 2){
+                        fn = file.name();
+                    }
+                    else{
+                        fn = file.path();
+                    }
+                    
                     fn.remove(0, 1);
                     sprintf(chbuf, "File Name = %s", fn.c_str());
                     if(ftp_debug) ftp_debug(chbuf);
@@ -438,10 +444,20 @@ boolean FtpServer::processCommand() {
                     file = dir.openNextFile();
 #else
                     String fn, fs;
-                    fn = file.name();
+             
+                    if(ESP_ARDUINO_VERSION_MAJOR < 2){
+                        fn = file.name();
+                    }
+                    else{
+                        fn = file.path();
+                    }
+                    
                     fn.remove(0, strlen(cwdName));
                     if(fn[0] == '/') fn.remove(0, 1);
                     fs = String(file.size());
+
+                    sprintf(chbuf, "File Name = %s", fn.c_str());
+                    if(ftp_debug) ftp_debug(chbuf);
                     if(file.isDirectory()) {
                         data.println("Type=dir;Size=" + fs + ";" + "modify=20000101000000;" + " " + fn);
                     }
@@ -451,6 +467,7 @@ boolean FtpServer::processCommand() {
                     nm++;
                     file = dir.openNextFile();
 #endif
+                
                 }
                 client.println("226-options: -a -l");
                 client.println("226 " + String(nm) + " matches total");
@@ -475,8 +492,18 @@ boolean FtpServer::processCommand() {
                     file.getName(chbuf, 256);
                     data.println(chbuf);
 #else
-                    data.println(file.name());
+                    if(ESP_ARDUINO_VERSION_MAJOR <2){
+                        data.println(file.name());
+                        sprintf(chbuf, "File Name = %s", file.name());
+                        if(ftp_debug) ftp_debug(chbuf);
+                    }
+                    else{
+                        data.println(file.path());
+                        sprintf(chbuf, "File Path/Name = %s", file.path());
+                        if(ftp_debug) ftp_debug(chbuf);
+                    }
 #endif
+                    
                     nm++;
                     file = dir.openNextFile();
                 }
