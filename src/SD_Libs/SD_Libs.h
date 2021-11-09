@@ -5,7 +5,7 @@
 #define __SD_LIBS_H__
 
 // global define SD (0), SD_MMC (1), SPIFFS (2), SDFAT (3)
-#define SD_IMPL 3
+#define SD_IMPL 0
 
 // for SD_MMC (1) or SPIFFS (2) code adjustments are necessary (Audio-Lib, main)
 #if   (SD_IMPL == 0)        // default
