@@ -762,8 +762,8 @@ void FtpServer::abortTransfer() {
 //     0 if empty line received
 //    length of cmdLine (positive) if no empty line received
 
-int8_t FtpServer::readChar() {
-    int8_t rc = -1;
+int16_t FtpServer::readChar() {
+    int16_t rc = -1;
     if(client.available()) {
         char c = client.read();
         if(c == '\\') {
