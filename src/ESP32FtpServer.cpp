@@ -20,6 +20,7 @@
 //  2017: modified by @robo8080
 //  2019: modified by @HenrikSte
 //  2021: modified by @schreibfaul1 add PSRAM and callbacks
+//  2022: modified by @mk279 fix data reception and avoid loss of last bytes
 
 #include "ESP32FtpServer.h"
 
@@ -710,7 +711,7 @@ boolean FtpServer::doRetrieve() {
 }
 //----------------------------------------------------------------------------------------------------------------------
 boolean FtpServer::doStore() {
-    if(data.connected()) {
+    if(data.available()) {
         unsigned long ms0 = millis();
         int32_t nb;
         nb = data.readBytes((uint8_t*) buf, FTP_BUF_SIZE);
